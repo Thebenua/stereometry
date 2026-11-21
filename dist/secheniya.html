@@ -109,6 +109,15 @@ ol,ul{padding:0;list-style:none}
   html[data-ui="1.5"] .app{zoom:1.5;width:66.6667vw;height:calc(100vh / 1.5);height:calc(100dvh / 1.5)}
 }
 
+/* Справка живёт в top layer вне .app: масштабируем её отдельно и делим
+   вьюпортные лимиты, иначе при 150 % окно выше экрана. */
+html[data-ui="1.25"]{--ui-scale:1.25}
+html[data-ui="1.5"]{--ui-scale:1.5}
+@media (min-width:761px){
+  html[data-ui="1.25"] #helpDialog{zoom:1.25}
+  html[data-ui="1.5"] #helpDialog{zoom:1.5}
+}
+
 /* ───────── Верхняя панель ───────── */
 .topbar{
   height:var(--topbar-h);flex:0 0 auto;
@@ -477,6 +486,11 @@ input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var
   width:min(580px,calc(100vw - 28px));max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);
   padding:0;border:1px solid var(--line);border-radius:14px;
   background:var(--card);color:var(--ink);box-shadow:0 30px 80px -30px rgba(0,0,0,.5);
+}
+:root{--ui-scale:1}
+@media (min-width:761px){
+  html[data-ui] .modal{width:min(580px,calc((100vw - 28px) / var(--ui-scale)));max-height:calc((100dvh - 40px) / var(--ui-scale))}
+  html[data-ui] .modal__body{max-height:calc((100dvh - 140px) / var(--ui-scale))}
 }
 .modal::backdrop{background:rgba(18,20,26,.42);backdrop-filter:blur(2px)}
 .modal__inner{padding:18px 20px 20px}

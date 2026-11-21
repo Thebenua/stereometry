@@ -119,6 +119,7 @@ const state = {
   offset: 0,
   visual: { opacity: 0.16, labels: true, grid: true, axes: false, plane: true, cut: 'none' },
   theme: 'light',
+  uiScale: 1,
   upperSign: 1,
   addMode: false,
   hintDismissed: false,
@@ -134,6 +135,7 @@ let clickCandidate = null;
 
 function init() {
   initTheme();
+  initUiScale();
 
   const stage = $('#stage');
   const canvasWrap = $('#canvasWrap');
@@ -146,6 +148,7 @@ function init() {
   }
 
   const restored = restoreFromHash() || restoreFromStore();
+  viewer.setUiScale(state.uiScale, { rebuild: false });
   if (!restored) {
     loadPreset('cube', { a: 2.4 });
     seatDefaultPoints();
@@ -662,6 +665,35 @@ function applyVisual(patch, { rebuildSection = false } = {}) {
   if (rebuildSection) refreshSection();
   syncVisualUI();
   scheduleSave();
+}
+
+/* ── размер интерфейса ─────────────────────────────────────── */
+
+const UI_KEY = 'secheniya.ui';
+const UI_STEPS = [1, 1.25, 1.5];
+
+function defaultUiScale() {
+  if (window.innerWidth >= 3300) return 1.5;
+  if (window.innerWidth >= 2300) return 1.25;
+  return 1;
+}
+
+function readUiScale() {
+  const saved = parseFloat(safeGet(UI_KEY) ?? '');
+  return UI_STEPS.includes(saved) ? saved : defaultUiScale();
+}
+
+function applyUiScale(scale, { save = true } = {}) {
+  const next = UI_STEPS.includes(scale) ? scale : 1;
+  state.uiScale = next;
+  document.documentElement.dataset.ui = String(next);
+  if (save) safeSet(UI_KEY, String(next));
+  $$('[data-ui-btn]').forEach((b) => b.classList.toggle('is-active', Number(b.dataset.uiBtn) === next));
+  viewer?.setUiScale?.(next);
+}
+
+function initUiScale() {
+  applyUiScale(readUiScale(), { save: false });
 }
 
 /* ── тема ──────────────────────────────────────────────────── */
@@ -1420,6 +1452,7 @@ function bindUI() {
   $('#toggleAxes').addEventListener('change', (e) => applyVisual({ axes: e.target.checked }));
 
   $$('[data-theme-btn]').forEach((btn) => btn.addEventListener('click', () => setTheme(btn.dataset.themeBtn)));
+  $$('[data-ui-btn]').forEach((btn) => btn.addEventListener('click', () => applyUiScale(Number(btn.dataset.uiBtn))));
   $$('[data-cam]').forEach((btn) => btn.addEventListener('click', () => viewer.cameraPreset(btn.dataset.cam)));
 
   $('#btnZoomIn').addEventListener('click', () => viewer.zoom(0.82));

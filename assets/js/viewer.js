@@ -81,6 +81,7 @@ export class Viewer {
     this.dist = 9;
     this.target = new THREE.Vector3(0, 1, 0);
     this._tween = null;
+    this.uiScale = 1;
 
     this._initScene();
     this._initLabelsBase();
@@ -501,10 +502,11 @@ export class Viewer {
 
   _rebuildPoints() {
     disposeGroup(this.pointGroup);
+    const touchBoost = 1 + ((this.uiScale || 1) - 1) * 0.7;
     for (const [key, pt] of Object.entries(this.points)) {
       if (!pt || !pt.pos) continue;
       const color = new THREE.Color(POINT_COLORS[key] ?? '#1B1C20');
-      const r = Math.max(0.045, (this.solid?.radius ?? 2) * 0.028);
+      const r = Math.max(0.045, (this.solid?.radius ?? 2) * 0.028) * touchBoost;
 
       const sphere = new THREE.Mesh(
         new THREE.SphereGeometry(r, 18, 14),
@@ -537,7 +539,8 @@ export class Viewer {
   _rebuildHandles() {
     disposeGroup(this.handleGroup);
     if (!this.solid || this.solid.kind !== 'custom') return;
-    const r = Math.max(0.038, this.solid.radius * 0.024);
+    const touchBoost = 1 + ((this.uiScale || 1) - 1) * 0.7;
+    const r = Math.max(0.038, this.solid.radius * 0.024) * touchBoost;
     for (let i = 0; i < this.solid.vertices.length; i++) {
       const v = this.solid.vertices[i];
       const dot = new THREE.Mesh(
@@ -714,10 +717,23 @@ export class Viewer {
    * буфер получился бы 7680×4320 (33 МП на кадр) и слабый GPU панели бы захлебнулся.
    */
   _pixelRatio(w = this.stageEl.clientWidth, h = this.stageEl.clientHeight) {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const scale = this.uiScale || 1;
+    const dpr = Math.min((window.devicePixelRatio || 1) * scale, 2 * scale);
     const area = Math.max(1, w * h);
     const budget = Math.sqrt(10e6 / area); // ≈ 10 МП на кадр
     return Math.max(1, Math.min(dpr, budget));
+  }
+
+  /** Масштаб интерфейса: крупнее точки и площади захвата под палец. */
+  setUiScale(scale, { rebuild = true } = {}) {
+    this.uiScale = scale || 1;
+    if (rebuild) {
+      this._rebuildPoints();
+      this._rebuildHandles();
+      this._collectPicks();
+    }
+    this.resize();
+    this._dirty = true;
   }
 
   resize() {
@@ -776,13 +792,15 @@ export class Viewer {
     return ray.ray.intersectPlane(plane, out) ? out : null;
   }
 
-  /** Ближайшая точка на отрезке к заданной (в экранных координатах) */
+  /** Ближайшая точка на отрезке к заданной (в координатах макета, не экрана) */
   projectToScreen(v) {
     const p = v.clone().project(this.camera);
-    const rect = this.renderer.domElement.getBoundingClientRect();
+    const el = this.renderer.domElement;
+    // clientWidth/Height — размеры макета: подписи живут в том же пространстве,
+    // а getBoundingClientRect вернул бы уже увеличенные zoom координаты
     return {
-      x: (p.x * 0.5 + 0.5) * rect.width,
-      y: (-p.y * 0.5 + 0.5) * rect.height,
+      x: (p.x * 0.5 + 0.5) * el.clientWidth,
+      y: (-p.y * 0.5 + 0.5) * el.clientHeight,
       visible: p.z < 1 && p.z > -1,
     };
   }
@@ -830,9 +848,8 @@ export class Viewer {
 
   _updateLabels() {
     if (!this.solid) return;
-    const rect = this.renderer.domElement.getBoundingClientRect();
-    const w = rect.width;
-    const h = rect.height;
+    const w = this.renderer.domElement.clientWidth;
+    const h = this.renderer.domElement.clientHeight;
     const centerScreen = this.projectToScreen(this.solid.center);
     this.labelScreens = [];
 
@@ -907,7 +924,7 @@ export class Viewer {
     this.renderer.render(this.scene, this.camera);
 
     const src = this.renderer.domElement;
-    const dpr = src.width / Math.max(1, src.getBoundingClientRect().width);
+    const dpr = src.width / Math.max(1, src.clientWidth);
     const pad = Math.round(40 * dpr);
     const out = document.createElement('canvas');
     out.width = src.width + pad * 2;

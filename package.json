@@ -1,0 +1,14 @@
+{
+  "name": "secheniya",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сечения — 3D-конструктор стереометрии для уроков",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "python -m http.server 8781"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

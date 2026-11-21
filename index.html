@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Сечения — интерактивный 3D-конструктор стереометрии: стройте многогранники, двигайте точки и смотрите, как плоскость режет тело. Работает в браузере без установки.">
+<meta name="theme-color" content="#F5F1E8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Сечения — 3D-конструктор стереометрии">
+<meta property="og:description" content="Стройте многогранники, двигайте точки и смотрите, как плоскость режет тело. Площадь, периметр и уравнение сечения считаются сами.">
+<meta property="og:locale" content="ru_RU">
+<title>Сечения — 3D-конструктор стереометрии</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%231C1D21'/%3E%3Cpath d='M24 9l13 7v16l-13 7-13-7V16z' fill='none' stroke='%23F5F1E8' stroke-width='2'/%3E%3Cpath d='M11 16l13 8 13-8M24 24v15' fill='none' stroke='%23E0684B' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/app.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js"
+  }
+}
+</script>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─────────────── Верхняя панель ─────────────── -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+          <path d="M16 4l10 5.5v13L16 28 6 22.5v-13z"/>
+          <path d="M6 9.5L16 15l10-5.5M16 15v13" stroke="#C14A32"/>
+        </svg>
+      </span>
+      <span class="brand__text">
+        <span class="brand__title">Сечения</span>
+        <span class="brand__sub">3D-конструктор стереометрии</span>
+      </span>
+    </div>
+
+    <div class="topbar__solid">
+      <span class="topbar__solid-label">Фигура</span>
+      <span class="topbar__solid-value" id="solidName">Куб</span>
+    </div>
+
+    <div class="topbar__actions">
+      <button class="btn btn--ghost" id="btnHelp" type="button" title="Как пользоваться и горячие клавиши">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.4c-.7.3-1 .9-1 1.7v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></svg>
+        <span class="btn__text">Справка</span>
+      </button>
+      <button class="btn btn--ghost" id="btnTheme" type="button" title="Светлая или тёмная тема (T)" aria-label="Переключить тему">
+        <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7z"/></svg>
+      </button>
+      <button class="btn btn--primary" id="btnShot" type="button" title="Сохранить картинку (P)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.9l1.2-1.8h4.8L15.6 6h1.9A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.4" r="3.4"/></svg>
+        <span class="btn__text">PNG</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="workspace">
+
+    <!-- ─────────────── Левая рейка ─────────────── -->
+    <nav class="rail" aria-label="Разделы">
+      <button class="rail__btn is-active" type="button" data-tab="solid" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5L12 12l8-4.5M12 12v9"/></svg>
+        <span>Фигура</span>
+      </button>
+      <button class="rail__btn" type="button" data-tab="points" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="8" r="2.2"/><circle cx="17" cy="7" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M9 9.2l2.2 5.6M14.8 8.9l-1.6 5.8" opacity=".55"/></svg>
+        <span>Точки</span>
+      </button>
+      <button class="rail__btn" type="button" data-tab="section" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" opacity=".45"/><path d="M3.4 12.4l17.2-5.1"/><path d="M6 9.6l3.6 8M9 7.4l7.2 9.2" opacity=".9"/></svg>
+        <span>Сечение</span>
+      </button>
+      <button class="rail__btn" type="button" data-tab="view" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12S18 18.2 12 18.2 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+        <span>Вид</span>
+      </button>
+      <button class="rail__btn" type="button" data-tab="tasks" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 4.5h9.5L19 9v10.5H5z"/><path d="M14 4.5V9h5M8 13h8M8 16.2h5.5"/></svg>
+        <span>Задачи</span>
+      </button>
+    </nav>
+
+    <!-- ─────────────── Сцена ─────────────── -->
+    <main class="stage" id="stage">
+      <div class="stage__canvas" id="canvasWrap"></div>
+      <div class="stage__labels" id="labels" aria-hidden="true"></div>
+
+      <div class="stage__badge" id="readout" hidden>
+        <span class="stage__badge-type" id="readoutType">—</span>
+        <span class="stage__badge-sep" aria-hidden="true"></span>
+        <span class="stage__badge-num" id="readoutArea">S = 0</span>
+      </div>
+
+      <div class="zoom">
+        <button class="zoom__btn" type="button" id="btnZoomIn" aria-label="Приблизить">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6v12M6 12h12"/></svg>
+        </button>
+        <button class="zoom__btn" type="button" id="btnZoomOut" aria-label="Отдалить">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/></svg>
+        </button>
+        <button class="zoom__btn" type="button" id="btnFrame" aria-label="Вписать фигуру в экран">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9V5.5A1.5 1.5 0 0 1 5.5 4H9M15 4h3.5A1.5 1.5 0 0 1 20 5.5V9M20 15v3.5a1.5 1.5 0 0 1-1.5 1.5H15M9 20H5.5A1.5 1.5 0 0 1 4 18.5V15"/><circle cx="12" cy="12" r="2.6"/></svg>
+        </button>
+      </div>
+
+      <div class="hint" id="hint">
+        <span class="hint__dot" aria-hidden="true"></span>
+        <span class="hint__text" id="hintText">Тяните точку M — сечение перестроится</span>
+        <button class="hint__close" type="button" id="hintClose" aria-label="Скрыть подсказку">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="stage__notice" id="notice" hidden role="status"></div>
+    </main>
+
+    <!-- ─────────────── Панель ─────────────── -->
+    <aside class="panel" id="panel" aria-label="Настройки">
+      <div class="panel__head">
+        <h2 class="panel__title" id="panelTitle">Фигура</h2>
+        <button class="panel__close" type="button" id="panelClose" aria-label="Закрыть панель">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="panel__body">
+
+        <!-- Фигура -->
+        <section class="tab is-active" id="tab-solid" data-panel="solid">
+          <p class="lede">Выберите готовое тело или соберите своё из точек.</p>
+
+          <div class="preset-grid">
+            <button class="preset" type="button" data-preset="cube">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M24 6.5l15 7.8v19.4L24 41.5 9 33.7V14.3z"/><path d="M9 14.3L24 22l15-7.7M24 22v19.5"/></svg>
+              </span>
+              <span class="preset__name">Куб</span>
+            </button>
+            <button class="preset" type="button" data-preset="box">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M7 17h21v22H7z"/><path d="M7 17l8-8h21l-8 8M28 17l8-8v22l-8 8"/></svg>
+              </span>
+              <span class="preset__name">Параллелепипед</span>
+            </button>
+            <button class="preset" type="button" data-preset="prism">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M10 36l6-18 16-6 6 18z"/><path d="M10 36l9-4 9 4M25 12l-9 4-6 20"/></svg>
+              </span>
+              <span class="preset__name">Призма</span>
+            </button>
+            <button class="preset" type="button" data-preset="pyramid">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M24 6l15 12-15 24L9 18z"/><path d="M24 6v36M9 18h30"/></svg>
+              </span>
+              <span class="preset__name">Пирамида</span>
+            </button>
+            <button class="preset" type="button" data-preset="tetra">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M24 6l17 32H7z"/><path d="M24 6L20 30l4 8M20 30H7M20 30l21 8" opacity=".75"/></svg>
+              </span>
+              <span class="preset__name">Тетраэдр</span>
+            </button>
+            <button class="preset" type="button" data-preset="octa">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M24 5l14 19-14 19L10 24z"/><path d="M10 24h28M24 5v38" opacity=".7"/></svg>
+              </span>
+              <span class="preset__name">Октаэдр</span>
+            </button>
+            <button class="preset preset--wide" type="button" data-preset="custom">
+              <span class="preset__ico">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="14" cy="20" r="2.4"/><circle cx="34" cy="17" r="2.4"/><circle cx="19" cy="36" r="2.4"/><circle cx="37" cy="33" r="2.4"/><path d="M16 21l16-3M15.5 22l3.5 12M34.5 19l1.5 12M21 35l14-2" opacity=".6"/></svg>
+              </span>
+              <span class="preset__name">Своя фигура</span>
+            </button>
+          </div>
+
+          <div class="field" id="paramsBlock" hidden>
+            <h3 class="label">Размеры</h3>
+            <div class="params" id="params"></div>
+          </div>
+
+          <div class="field" id="editShapeBlock">
+            <button class="btn btn--soft btn--block" type="button" id="btnEditShape">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20l4.5-1.2L20 7.3 16.7 4 5.2 15.5z"/><path d="M14.4 6.3l3.3 3.3"/></svg>
+              Менять форму вручную
+            </button>
+          </div>
+
+          <div class="builder" id="builder" hidden>
+            <h3 class="label">Вершины фигуры</h3>
+            <p class="micro" id="builderHint">Добавьте минимум четыре точки, не лежащие в одной плоскости. Оболочка по точкам построится сама — точки можно тянуть прямо в сцене.</p>
+            <div class="builder__actions">
+              <button class="btn btn--soft" type="button" id="btnAddPoint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Добавить точку
+              </button>
+              <button class="btn btn--soft" type="button" id="btnClearPoints">Очистить</button>
+            </div>
+            <div class="point-list" id="customList"></div>
+          </div>
+
+          <p class="micro" id="solidNote">Точки M, N и K задают плоскость сечения. Их можно тянуть по рёбрам.</p>
+        </section>
+
+        <!-- Точки -->
+        <section class="tab" id="tab-points" data-panel="points" hidden>
+          <p class="lede">Точки сечения живут на рёбрах или в свободном полёте. Тяните их мышкой или введите координаты.</p>
+
+          <div class="pt-cards" id="ptCards">
+            <div class="pt-card" data-key="M">
+              <div class="pt-card__head">
+                <span class="pt-card__dot pt-card__dot--m" aria-hidden="true"></span>
+                <span class="pt-card__name">M</span>
+                <span class="pt-card__state" data-state>на ребре</span>
+              </div>
+              <div class="pt-card__coords">
+                <label class="num"><span>x</span><input type="text" inputmode="decimal" data-axis="x"></label>
+                <label class="num"><span>y</span><input type="text" inputmode="decimal" data-axis="y"></label>
+                <label class="num"><span>z</span><input type="text" inputmode="decimal" data-axis="z"></label>
+              </div>
+            </div>
+            <div class="pt-card" data-key="N">
+              <div class="pt-card__head">
+                <span class="pt-card__dot pt-card__dot--n" aria-hidden="true"></span>
+                <span class="pt-card__name">N</span>
+                <span class="pt-card__state" data-state>на ребре</span>
+              </div>
+              <div class="pt-card__coords">
+                <label class="num"><span>x</span><input type="text" inputmode="decimal" data-axis="x"></label>
+                <label class="num"><span>y</span><input type="text" inputmode="decimal" data-axis="y"></label>
+                <label class="num"><span>z</span><input type="text" inputmode="decimal" data-axis="z"></label>
+              </div>
+            </div>
+            <div class="pt-card" data-key="K">
+              <div class="pt-card__head">
+                <span class="pt-card__dot pt-card__dot--k" aria-hidden="true"></span>
+                <span class="pt-card__name">K</span>
+                <span class="pt-card__state" data-state>на ребре</span>
+              </div>
+              <div class="pt-card__coords">
+                <label class="num"><span>x</span><input type="text" inputmode="decimal" data-axis="x"></label>
+                <label class="num"><span>y</span><input type="text" inputmode="decimal" data-axis="y"></label>
+                <label class="num"><span>z</span><input type="text" inputmode="decimal" data-axis="z"></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout">
+            <strong>Как это работает.</strong> Поднесите точку к ребру — она «прилипнет» и поедет вдоль него. Отпустите в стороне — станет свободной. Точки на вершинах подсвечиваются.
+          </div>
+
+          <div class="row">
+            <button class="btn btn--soft btn--block" type="button" id="btnResetPoints">Вернуть точки по умолчанию</button>
+          </div>
+        </section>
+
+        <!-- Сечение -->
+        <section class="tab" id="tab-section" data-panel="section" hidden>
+          <div class="metrics" id="metrics">
+            <div class="metric metric--main">
+              <span class="metric__label">Сечение</span>
+              <span class="metric__value" id="secType">—</span>
+              <span class="metric__hint"><span id="secSides">0</span> сторон</span>
+            </div>
+            <div class="metric">
+              <span class="metric__label">Площадь</span>
+              <span class="metric__value metric__value--num" id="secArea">0</span>
+              <span class="metric__hint">кв. ед.</span>
+            </div>
+            <div class="metric">
+              <span class="metric__label">Периметр</span>
+              <span class="metric__value metric__value--num" id="secPerimeter">0</span>
+              <span class="metric__hint">ед.</span>
+            </div>
+          </div>
+
+          <div class="field field--tight">
+            <h3 class="label" id="cutLabel">Что оставить после разреза</h3>
+            <div class="seg seg--cut" role="group" aria-labelledby="cutLabel">
+              <button class="seg__btn is-active" type="button" data-cut="none" aria-pressed="true">Всё тело</button>
+              <button class="seg__btn" type="button" data-cut="top" aria-pressed="false">Верхняя</button>
+              <button class="seg__btn" type="button" data-cut="bottom" aria-pressed="false">Нижняя</button>
+            </div>
+            <p class="micro" id="cutHint">Выберите половину — вторая исчезнет вместе с подписями, а срез останется закрашенным.</p>
+          </div>
+
+          <div class="equation" id="equationBlock">
+            <span class="label">Уравнение плоскости</span>
+            <code id="secEquation">—</code>
+          </div>
+
+          <div class="callout callout--warn" id="secWarning" hidden>
+            <strong>Плоскость не задана.</strong> Точки M, N и K лежат на одной прямой — сдвиньте любую точку.
+          </div>
+
+          <div class="field">
+            <div class="field__head">
+              <h3 class="label" for="offset">Сдвиг плоскости <span class="kbd-inline">∥</span></h3>
+              <output class="field__value" id="offsetVal">0,00</output>
+            </div>
+            <input type="range" id="offset" min="-2" max="2" step="0.01" value="0">
+            <p class="micro">Параллельно сдвигает плоскость — удобно показывать, как меняется сечение.</p>
+          </div>
+
+          <div class="toggles">
+            <label class="switch" id="planeRow">
+              <input type="checkbox" id="togglePlane" checked>
+              <span class="switch__track" aria-hidden="true"></span>
+              <span class="switch__text">Показывать плоскость</span>
+            </label>
+          </div>
+
+          <div class="callout">
+            <strong>Подсказка для урока.</strong> «Верхняя» и «нижняя» — половины тела по разные стороны плоскости. Покрутите сцену: видно, что именно осталось и каким получился срез.
+          </div>
+        </section>
+
+        <!-- Вид -->
+        <section class="tab" id="tab-view" data-panel="view" hidden>
+          <div class="field">
+            <div class="field__head">
+              <h3 class="label" for="opacity">Прозрачность граней</h3>
+              <output class="field__value" id="opacityVal">16 %</output>
+            </div>
+            <input type="range" id="opacity" min="0" max="70" step="1" value="16">
+          </div>
+
+          <div class="toggles">
+            <label class="switch">
+              <input type="checkbox" id="toggleLabels" checked>
+              <span class="switch__track" aria-hidden="true"></span>
+              <span class="switch__text">Подписи вершин</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="toggleGrid" checked>
+              <span class="switch__track" aria-hidden="true"></span>
+              <span class="switch__text">Сетка на полу</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="toggleAxes">
+              <span class="switch__track" aria-hidden="true"></span>
+              <span class="switch__text">Оси координат</span>
+            </label>
+          </div>
+
+          <div class="field">
+            <h3 class="label">Тема</h3>
+            <div class="seg" role="group" aria-label="Тема оформления">
+              <button class="seg__btn is-active" type="button" data-theme-btn="light">Светлая</button>
+              <button class="seg__btn" type="button" data-theme-btn="dark">Тёмная</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <h3 class="label">Ракурс</h3>
+            <div class="row row--wrap">
+              <button class="btn btn--soft" type="button" data-cam="iso">Изометрия</button>
+              <button class="btn btn--soft" type="button" data-cam="front">Спереди</button>
+              <button class="btn btn--soft" type="button" data-cam="top">Сверху</button>
+              <button class="btn btn--soft" type="button" data-cam="side">Сбоку</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <h3 class="label">Проект</h3>
+            <div class="row row--wrap">
+              <button class="btn btn--soft" type="button" id="btnSave">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+                Скачать .json
+              </button>
+              <button class="btn btn--soft" type="button" id="btnOpen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20V9m0 0L8 13m4-4l4 4M5 5h14"/></svg>
+                Открыть
+              </button>
+              <button class="btn btn--soft" type="button" id="btnShare">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9.5 14.5l5-5M8 16a3 3 0 1 1-4.2-4.2l2.4-2.4A3 3 0 0 1 10.5 9M16 8a3.2 3.2 0 1 1 4.2 4.2l-2.4 2.4a3 3 0 0 1-4.3.2"/></svg>
+                Ссылка
+              </button>
+            </div>
+            <p class="micro">Ссылка сохраняет фигуру, точки и ракурс прямо в адресе страницы — удобно отправить ученику.</p>
+          </div>
+          <input type="file" id="fileInput" accept=".json,application/json" hidden>
+
+          <div class="callout">
+            <strong>Всё считается в браузере.</strong> Ничего не уходит на сервер, интернет нужен только чтобы открыть страницу.
+          </div>
+        </section>
+
+        <!-- Задачи -->
+        <section class="tab" id="tab-tasks" data-panel="tasks" hidden>
+          <p class="lede">Готовые сценарии для урока: откройте и показывайте. Потом можно двигать точки сколько угодно.</p>
+          <div class="task-list" id="taskList"></div>
+          <div class="callout">
+            <strong>Своя задача.</strong> Соберите фигуру, поставьте точки M, N, K и нажмите «Ссылка» — получится отдельный адрес для этой задачи.
+          </div>
+        </section>
+
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Справка -->
+<dialog class="modal" id="helpDialog" aria-labelledby="helpTitle">
+  <div class="modal__inner">
+    <div class="modal__head">
+      <h2 id="helpTitle">Как пользоваться</h2>
+      <button class="modal__close" type="button" id="helpClose" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <ol class="steps">
+        <li><strong>Выберите тело</strong> на панели «Фигура». Или соберите своё: «Своя фигура» → «Добавить точку» и тяните вершины.</li>
+        <li><strong>Поставьте плоскость.</strong> Три точки M, N, K задают сечение. Приблизьте точку к ребру — она поедет по ребру и покажет классическое построение. Подписи вершин помогают называть точки на уроке.</li>
+        <li><strong>Показывайте.</strong> «Верхняя» или «Нижняя» оставляют на сцене только одну половину тела с закрашенным срезом — видно, что именно осталось. Сдвиг плоскости показывает семейство параллельных сечений, площадь и периметр считаются сами.</li>
+      </ol>
+      <h3 class="label">Управление</h3>
+      <table class="keys">
+        <tbody>
+          <tr><td><span class="kbd">ЛКМ</span> + тянуть</td><td>вращать сцену</td></tr>
+          <tr><td><span class="kbd">ПКМ</span> / <span class="kbd">Shift</span> + тянуть</td><td>двигать сцену</td></tr>
+          <tr><td>Колесо / щипок</td><td>приблизить</td></tr>
+          <tr><td>Тянуть точку M, N, K</td><td>двигать плоскость сечения</td></tr>
+          <tr><td>Тянуть вершину своей фигуры</td><td>перестроить форму</td></tr>
+          <tr><td><span class="kbd">1</span>–<span class="kbd">5</span></td><td>разделы панели</td></tr>
+          <tr><td><span class="kbd">T</span> · <span class="kbd">G</span> · <span class="kbd">L</span> · <span class="kbd">P</span></td><td>тема · сетка · подписи · картинка</td></tr>
+          <tr><td><span class="kbd">R</span></td><td>вписать фигуру в экран</td></tr>
+          <tr><td><span class="kbd">Esc</span></td><td>отменить добавление точки</td></tr>
+        </tbody>
+      </table>
+      <p class="micro modal__foot">Сечения · учебный проект для уроков стереометрии. Работает офлайн после загрузки страницы, ничего не отправляет на сервер.</p>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

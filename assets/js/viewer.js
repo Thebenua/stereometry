@@ -103,7 +103,7 @@ export class Viewer {
       preserveDrawingBuffer: true,
       powerPreference: 'high-performance',
     });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setPixelRatio(this._pixelRatio(w, h));
     this.renderer.setSize(w, h);
     this.renderer.localClippingEnabled = true;
     this.renderer.domElement.style.display = 'block';
@@ -132,6 +132,8 @@ export class Viewer {
 
     this._ro = new ResizeObserver(() => this.resize());
     this._ro.observe(this.stageEl);
+    // devicePixelRatio меняется без изменения размера сцены (зум страницы, переключение экрана)
+    window.addEventListener('resize', () => this.resize());
   }
 
   _buildHelpers() {
@@ -707,10 +709,25 @@ export class Viewer {
     this._tween = { t: 0, from, to, camera: true };
   }
 
+  /**
+   * Плотность пикселей с потолком по площади кадра: на 4K-панели с devicePixelRatio 2
+   * буфер получился бы 7680×4320 (33 МП на кадр) и слабый GPU панели бы захлебнулся.
+   */
+  _pixelRatio(w = this.stageEl.clientWidth, h = this.stageEl.clientHeight) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const area = Math.max(1, w * h);
+    const budget = Math.sqrt(10e6 / area); // ≈ 10 МП на кадр
+    return Math.max(1, Math.min(dpr, budget));
+  }
+
   resize() {
     const w = this.stageEl.clientWidth;
     const h = this.stageEl.clientHeight;
     if (!w || !h) return;
+    const ratio = this._pixelRatio(w, h);
+    if (Math.abs(ratio - this.renderer.getPixelRatio()) > 0.01) {
+      this.renderer.setPixelRatio(ratio);
+    }
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);

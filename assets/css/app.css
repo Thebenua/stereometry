@@ -86,7 +86,7 @@ ol,ul{padding:0;list-style:none}
 ::selection{background:var(--accent-soft);color:var(--accent-ink)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 
-.app{display:flex;flex-direction:column;height:100dvh;min-height:0}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;min-height:0}
 
 /* ───────── Верхняя панель ───────── */
 .topbar{
@@ -453,7 +453,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var
 
 /* ───────── Модальное окно ───────── */
 .modal{
-  width:min(580px,calc(100vw - 28px));max-height:calc(100dvh - 40px);
+  width:min(580px,calc(100vw - 28px));max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);
   padding:0;border:1px solid var(--line);border-radius:14px;
   background:var(--card);color:var(--ink);box-shadow:0 30px 80px -30px rgba(0,0,0,.5);
 }
@@ -464,7 +464,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var
 .modal__close{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;color:var(--muted)}
 .modal__close:hover{background:var(--paper);color:var(--ink)}
 .modal__close svg{width:16px;height:16px}
-.modal__body{max-height:calc(100dvh - 140px);overflow:auto;padding-right:4px}
+.modal__body{max-height:calc(100vh - 140px);max-height:calc(100dvh - 140px);overflow:auto;padding-right:4px}
 .steps{counter-reset:s;display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
 .steps li{
   counter-increment:s;position:relative;padding-left:30px;
@@ -515,7 +515,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var
 
   .workspace{
     display:flex;flex-direction:column;
-    position:relative;flex:0 0 auto;height:calc(100dvh - var(--topbar-h) - 58px);
+    position:relative;flex:0 0 auto;height:calc(100vh - var(--topbar-h) - 58px);height:calc(100dvh - var(--topbar-h) - 58px);
   }
   .stage{position:relative;flex:1 1 auto;min-height:0}
   .rail{
@@ -541,7 +541,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 2px var
     transition:height .24s cubic-bezier(.2,.8,.25,1);
     z-index:20;
   }
-  .panel.is-open{height:min(52dvh,460px)}
+  .panel.is-open{height:min(52vh,460px);height:min(52dvh,460px)}
   .panel__head{padding:10px 16px 6px}
   .panel__close{display:grid}
   .panel__body{padding:0 16px 20px}

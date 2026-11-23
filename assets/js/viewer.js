@@ -65,6 +65,7 @@ export class Viewer {
       axes: false,
       plane: true,
       cut: 'none',
+      tails: true,
     };
     this.upperSign = null;
 
@@ -448,6 +449,82 @@ export class Viewer {
       m.renderOrder = 5;
       this.sectionGroup.add(m);
     }
+    // круглые стыки: на углах сечения линии сходятся без щели
+    for (const pt of pts) {
+      const joint = new THREE.Mesh(new THREE.SphereGeometry(radius * 1.02, 10, 8), lineMat);
+      joint.position.copy(pt);
+      joint.renderOrder = 5;
+      this.sectionGroup.add(joint);
+    }
+
+    if (this.visual.tails) this._drawSectionTails(pts, radius);
+  }
+
+  /**
+   * «Стороны вдаль»: каждая сторона сечения продолжается за свои вершины
+   * коротким затухающим отростком. В перспективе продолжения сходятся к своим
+   * точкам схода, и сечение читается как плоскость, уходящая в пространство,
+   * а не как наклейка на теле. Стык с контуром перекрыт, чтобы не было разрыва.
+   */
+  _drawSectionTails(pts, radius) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: this.palette.sectionLine,
+      alphaMap: this._tailTexture(),
+      transparent: true,
+      opacity: 0.92,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const len = Math.min(0.7, Math.max(0.2, (this.solid?.radius ?? 2) * 0.24));
+    const baseR = radius * 1.02;
+    const tipR = radius * 0.94;
+    const up = new THREE.Vector3(0, 1, 0);
+    const dir = new THREE.Vector3();
+    const start = new THREE.Vector3();
+    const quat = new THREE.Quaternion();
+
+    for (let i = 0; i < pts.length; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % pts.length];
+      dir.subVectors(b, a);
+      const edgeLen = dir.length();
+      if (edgeLen < 1e-6) continue;
+      dir.multiplyScalar(1 / edgeLen);
+      for (const [vertex, sign] of [[a, -1], [b, 1]]) {
+        dir.multiplyScalar(sign); // продолжение в сторону от стороны
+        const tailLen = Math.min(len, edgeLen * 0.5);
+        start.copy(vertex).addScaledVector(dir, -0.012);
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(tipR, baseR, tailLen, 6, 1, true), mat);
+        m.position.copy(start).addScaledVector(dir, tailLen / 2);
+        quat.setFromUnitVectors(up, dir);
+        m.quaternion.copy(quat);
+        m.renderOrder = 4.9;
+        this.sectionGroup.add(m);
+        dir.multiplyScalar(sign); // вернуть единичное направление стороны
+      }
+    }
+  }
+
+  /** Градиент по длине отростка: у кончика прозрачно, у вершины плотно. */
+  _tailTexture() {
+    if (this._tailTex) return this._tailTex;
+    const c = document.createElement('canvas');
+    c.width = 8;
+    c.height = 64;
+    const g = c.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, 0, 64);
+    grad.addColorStop(0, '#000');
+    grad.addColorStop(0.45, '#5a5a5a');
+    grad.addColorStop(1, '#fff');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 8, 64);
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.ClampToEdgeWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    this._tailTex = tex;
+    return tex;
   }
 
   _hatchTexture() {

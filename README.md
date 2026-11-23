@@ -14,7 +14,7 @@
     <img src="https://img.shields.io/badge/Открыть_в_браузере-Живая_сцена-C14A32?style=for-the-badge&logo=googlechrome&logoColor=F5F1E8" alt="Открыть приложение" />
   </a>
   <a href="https://github.com/Thebenua/stereometry/raw/main/dist/secheniya.html">
-    <img src="https://img.shields.io/badge/Скачать_один_файл-0%2C84_МБ_офлайн-2C6B62?style=for-the-badge&logo=html5&logoColor=F5F1E8" alt="Скачать автономный файл" />
+    <img src="https://img.shields.io/badge/Скачать_один_файл-0%2C85_МБ_офлайн-2C6B62?style=for-the-badge&logo=html5&logoColor=F5F1E8" alt="Скачать автономный файл" />
   </a>
   <a href="https://github.com/Thebenua/stereometry">
     <img src="https://img.shields.io/badge/GitHub-Исходники-1B1C20?style=for-the-badge&logo=github&logoColor=F5F1E8" alt="Исходники на GitHub" />
@@ -25,7 +25,7 @@
   <img src="https://img.shields.io/badge/Three.js-0.160-000000?style=flat-square&logo=threedotjs&logoColor=white" alt="Three.js 0.160" />
   <img src="https://img.shields.io/badge/Vanilla_JS-ES_модули-F7DF1E?style=flat-square&logo=javascript&logoColor=1B1C20" alt="JavaScript" />
   <img src="https://img.shields.io/badge/Без_CDN-локальные_шрифты_и_Three.js-2C6B62?style=flat-square" alt="Без CDN" />
-  <img src="https://img.shields.io/badge/Один_файл-0%2C84_МБ-C14A32?style=flat-square" alt="Один файл" />
+  <img src="https://img.shields.io/badge/Один_файл-0%2C85_МБ-C14A32?style=flat-square" alt="Один файл" />
   <img src="https://img.shields.io/badge/Адаптив-320_--_1440_px-5A4FCF?style=flat-square" alt="Адаптив" />
 </p>
 
@@ -60,6 +60,7 @@
 - **11 готовых тел:** куб, параллелепипед, правильные призмы и пирамиды с 3, 4 и 6 сторонами, тетраэдр, октаэдр. Размеры — ползунками.
 - **Точки сечения M, N, K.** У ребра точка «прилипает» и едет вдоль него, в стороне становится свободной. Координаты вводятся и руками.
 - **Сечение:** тип многоугольника, площадь, периметр, уравнение плоскости. Параллельный сдвиг плоскости показывает семейство сечений.
+- **Линии сечения уходят вдаль:** стороны сечения продолжаются за тело короткими затухающими линиями. В перспективе продолжения сходятся к своим точкам схода, и плоскость читается как уходящая в пространство, а не как наклейка на фигуре. Переключатель — в разделе «Сечение».
 - **«Что оставить после разреза»:** всё тело, верхняя или нижняя половина. Вторая часть исчезает вместе со своими вершинами, срез остаётся закрашенным и заштрихованным.
 - **Своя фигура:** «Добавить точку» → клик по сетке, выпуклая оболочка строится сама, вершины тянутся в сцене, координаты правятся в списке.
 - **Оформление:** светлая и тёмная темы, прозрачность граней, подписи, сетка, оси, ракурсы (изометрия, спереди, сверху, сбоку), масштаб интерфейса 100 / 125 / 150 % для больших экранов.
@@ -185,7 +186,7 @@ stereometry/
 │   └── fonts/                  # Manrope и JetBrains Mono (кириллица + латиница)
 ├── vendor/three/               # Three.js 0.160 и ConvexHull локально
 ├── dist/
-│   ├── secheniya.html          # автономная сборка одним файлом (0,84 МБ)
+│   ├── secheniya.html          # автономная сборка одним файлом (0,85 МБ)
 │   └── .nojekyll
 ├── design/
 │   ├── BRIEF.md                # бриф: аудитория, задача, тон

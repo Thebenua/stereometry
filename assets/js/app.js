@@ -117,7 +117,7 @@ const state = {
   points: {},
   plane: null,
   offset: 0,
-  visual: { opacity: 0.16, labels: true, grid: true, axes: false, plane: true, cut: 'none' },
+  visual: { opacity: 0.16, labels: true, grid: true, axes: false, plane: true, cut: 'none', tails: true },
   theme: 'light',
   uiScale: 1,
   upperSign: 1,
@@ -644,6 +644,7 @@ function syncVisualUI() {
   $('#togglePlane').checked = state.visual.plane;
   $('#togglePlane').disabled = state.visual.cut !== 'none';
   $('#planeRow').classList.toggle('is-disabled', state.visual.cut !== 'none');
+  $('#toggleTails').checked = state.visual.tails;
   $$('[data-cut]').forEach((b) => {
     const on = b.dataset.cut === state.visual.cut;
     b.classList.toggle('is-active', on);
@@ -1437,6 +1438,9 @@ function bindUI() {
 
   $('#togglePlane').addEventListener('change', (e) => {
     applyVisual({ plane: e.target.checked }, { rebuildSection: true });
+  });
+  $('#toggleTails').addEventListener('change', (e) => {
+    applyVisual({ tails: e.target.checked }, { rebuildSection: true });
   });
   $$('[data-cut]').forEach((btn) => btn.addEventListener('click', () => {
     const cut = btn.dataset.cut;
